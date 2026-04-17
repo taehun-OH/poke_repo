@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0a0e27">
+<title>포켓몬 강화소 ⚡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Press+Start+2P&family=Gaegu:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0a0e27;
+    --bg-card: #151b3d;
+    --bg-card-light: #1f2754;
+    --gold: #ffd93d;
+    --gold-dim: #c9a82f;
+    --red: #ff4757;
+    --green: #2ed573;
+    --blue: #5352ed;
+    --purple: #a55eea;
+    --cyan: #26e0e0;
+    --text: #f1f2f6;
+    --text-dim: #a4b0be;
+    --border: #2c3378;
+    --shadow: 0 3px 0 #05081a, 0 6px 16px rgba(0,0,0,0.5);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; -webkit-touch-callout: none; }
+
+html { font-size: 16px; touch-action: manipulation; -webkit-text-size-adjust: 100%; }
+
+html, body {
+background: var(–bg-deep);
+color: var(–text);
+font-family: ‘Jua’, sans-serif;
+height: 100%;
+overflow: hidden;
+user-select: none;
+-webkit-user-select: none;
+overscroll-behavior: none;
+}
+
+body {
+background:
+radial-gradient(ellipse at top, rgba(85, 82, 237, 0.15), transparent 60%),
+radial-gradient(ellipse at bottom, rgba(165, 94, 234, 0.1), transparent 60%),
+var(–bg-deep);
+padding-top: var(–safe-top);
+padding-bottom: var(–safe-bottom);
+position: fixed;
+width: 100%;
+}
+
+body::before {
+content: “”;
+position: fixed; inset: 0;
+background-image:
+radial-gradient(1px 1px at 20% 30%, #fff, transparent),
+radial-gradient(1px 1px at 70% 80%, #fff, transparent),
+radial-gradient(1px 1px at 40% 60%, #fff, transparent),
+radial-gradient(2px 2px at 90% 20%, #ffd93d, transparent),
+radial-gradient(1px 1px at 10% 90%, #26e0e0, transparent);
+background-size: 400px 400px;
+opacity: 0.4;
+pointer-events: none;
+z-index: 0;
+}
+
+.app {
+max-width: 500px;
+margin: 0 auto;
+padding: 8px 12px;
+position: relative;
+z-index: 1;
+height: 100%;
+display: flex;
+flex-direction: column;
+overflow-y: auto;
+overflow-x: hidden;
+-webkit-overflow-scrolling: touch;
+}
+
+/* === 컴팩트 헤더 === */
+.header {
+text-align: center;
+padding: 6px 0 8px;
+flex-shrink: 0;
+}
+.header h1 {
+font-family: ‘Press Start 2P’, cursive;
+font-size: clamp(11px, 3.5vw, 14px);
+color: var(–gold);
+text-shadow: 2px 2px 0 var(–red), 4px 4px 0 rgba(0,0,0,0.5);
+letter-spacing: 1.5px;
+}
+
+/* === 스탯바 === */
+.statbar {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 6px;
+margin-bottom: 8px;
+flex-shrink: 0;
+}
+.stat {
+background: var(–bg-card);
+border: 2px solid var(–border);
+padding: 6px 10px;
+border-radius: 8px;
+box-shadow: var(–shadow);
+display: flex;
+align-items: center;
+gap: 6px;
+min-width: 0;
+}
+.stat-icon {
+font-size: 16px;
+flex-shrink: 0;
+}
+.stat-info { flex: 1; min-width: 0; }
+.stat-label { font-size: 9px; color: var(–text-dim); letter-spacing: 0.5px; }
+.stat-value {
+font-size: clamp(12px, 3.5vw, 15px);
+color: var(–gold);
+font-family: ‘Press Start 2P’, cursive;
+margin-top: 1px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+}
+
+/* === 포켓몬 스테이지 === */
+.pokemon-stage {
+background: linear-gradient(180deg, var(–bg-card-light) 0%, var(–bg-card) 100%);
+border: 3px solid var(–border);
+border-radius: 14px;
+padding: 12px 12px 10px;
+text-align: center;
+box-shadow: var(–shadow);
+position: relative;
+overflow: hidden;
+margin-bottom: 8px;
+flex-shrink: 0;
+}
+.pokemon-stage::before {
+content: “”;
+position: absolute; inset: 0;
+background: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,217,61,0.03) 20px, rgba(255,217,61,0.03) 21px);
+pointer-events: none;
+}
+.level-badge {
+display: inline-block;
+background: var(–gold);
+color: var(–bg-deep);
+padding: 3px 10px;
+border-radius: 16px;
+font-family: ‘Press Start 2P’, cursive;
+font-size: 10px;
+margin-bottom: 6px;
+box-shadow: 0 2px 0 var(–gold-dim);
+}
+.level-badge.max {
+background: linear-gradient(90deg, #ff4757, #ffd93d, #26e0e0, #a55eea);
+background-size: 200% 100%;
+animation: rainbow 2s linear infinite;
+color: #fff;
+text-shadow: 1px 1px 0 #000;
+}
+@keyframes rainbow { 0% { background-position: 0% 0; } 100% { background-position: 200% 0; } }
+
+.pokemon-image-wrapper {
+position: relative;
+height: min(36vw, 160px);
+display: flex;
+align-items: center;
+justify-content: center;
+margin-bottom: 4px;
+}
+.pokemon-image {
+width: 100%;
+height: 100%;
+max-width: 160px;
+max-height: 160px;
+object-fit: contain;
+image-rendering: pixelated;
+image-rendering: -moz-crisp-edges;
+image-rendering: crisp-edges;
+filter: drop-shadow(0 8px 16px rgba(0,0,0,0.5));
+}
+.pokemon-image.bouncing { animation: bounce 0.6s ease; }
+.pokemon-image.shaking { animation: shake 0.5s ease; }
+.pokemon-image.evolving { animation: evolve 1s ease; }
+@keyframes bounce {
+0%, 100% { transform: translateY(0); }
+30% { transform: translateY(-18px) scale(1.1); }
+60% { transform: translateY(0) scale(0.95); }
+}
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+20% { transform: translateX(-8px) rotate(-3deg); }
+40% { transform: translateX(8px) rotate(3deg); }
+60% { transform: translateX(-6px) rotate(-2deg); }
+80% { transform: translateX(6px) rotate(2deg); }
+}
+@keyframes evolve {
+0% { transform: scale(1); filter: brightness(1) drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
+50% { transform: scale(1.25); filter: brightness(5) drop-shadow(0 0 50px #ffd93d); }
+100% { transform: scale(1); filter: brightness(1) drop-shadow(0 8px 16px rgba(0,0,0,0.5)); }
+}
+
+.pokemon-name {
+font-family: ‘Gaegu’, cursive;
+font-size: clamp(17px, 5vw, 22px);
+color: var(–text);
+margin-bottom: 2px;
+text-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+line-height: 1.1;
+padding: 0 8px;
+word-break: keep-all;
+}
+.pokemon-number {
+font-size: 10px;
+color: var(–text-dim);
+font-family: ‘Press Start 2P’, cursive;
+}
+
+/* === 확률 미리보기 === */
+.probability-preview {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 5px;
+margin-bottom: 8px;
+padding: 6px;
+background: var(–bg-card);
+border: 2px solid var(–border);
+border-radius: 10px;
+flex-shrink: 0;
+}
+.prob { text-align: center; padding: 4px 2px; border-radius: 6px; background: rgba(255,255,255,0.03); }
+.prob-label { font-size: 9px; letter-spacing: 0.5px; margin-bottom: 2px; }
+.prob-label.success { color: var(–green); }
+.prob-label.keep { color: var(–gold); }
+.prob-label.destroy { color: var(–red); }
+.prob-value { font-size: 12px; font-family: ‘Press Start 2P’, cursive; color: var(–text); }
+
+/* === 로그 === */
+.result-log {
+background: rgba(0,0,0,0.3);
+border: 2px solid var(–border);
+border-radius: 10px;
+padding: 8px 12px;
+margin-bottom: 8px;
+height: 62px;
+overflow-y: auto;
+font-size: 12px;
+line-height: 1.5;
+flex-shrink: 0;
+-webkit-overflow-scrolling: touch;
+}
+.result-log div { margin-bottom: 2px; animation: slideIn 0.3s ease; word-break: keep-all; }
+.result-log .success { color: var(–green); }
+.result-log .keep { color: var(–gold); }
+.result-log .destroy { color: var(–red); font-weight: bold; }
+.result-log .evolve { color: var(–cyan); font-weight: bold; }
+.result-log .system { color: var(–text-dim); }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+
+/* === 버튼 === */
+.actions {
+display: grid;
+grid-template-columns: 2fr 1fr;
+gap: 8px;
+margin-bottom: 6px;
+flex-shrink: 0;
+}
+button.btn {
+font-family: ‘Jua’, sans-serif;
+font-size: 15px;
+padding: 14px 10px;
+border: 3px solid;
+border-radius: 10px;
+cursor: pointer;
+transition: transform 0.08s, box-shadow 0.08s;
+box-shadow: 0 4px 0;
+position: relative;
+letter-spacing: 0.5px;
+min-height: 48px;  /* 터치 타겟 최소 사이즈 */
+-webkit-appearance: none;
+}
+button.btn:active:not(:disabled) {
+transform: translateY(3px);
+box-shadow: 0 1px 0 !important;
+}
+button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.btn-enhance {
+background: linear-gradient(180deg, #ff6b7a 0%, var(–red) 100%);
+color: #fff;
+border-color: #c73545;
+box-shadow: 0 4px 0 #8b1f2a, 0 6px 12px rgba(255,71,87,0.4);
+text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+.btn-sell {
+background: linear-gradient(180deg, #5eead4 0%, #26e0e0 100%);
+color: var(–bg-deep);
+border-color: #0891b2;
+box-shadow: 0 4px 0 #0e7490;
+font-size: 13px;
+}
+.bottom-actions {
+display: grid;
+grid-template-columns: 1fr 1fr 1fr;
+gap: 6px;
+flex-shrink: 0;
+}
+.btn-mini {
+background: var(–bg-card);
+color: var(–text);
+border-color: var(–border);
+box-shadow: 0 3px 0 #000814;
+font-size: 12px;
+padding: 10px 4px;
+min-height: 42px;
+}
+
+/* === 플래시, 모달, 팝업 === */
+.flash-overlay { position: fixed; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 999; transition: opacity 0.2s; }
+.flash-overlay.active { opacity: 0.9; }
+
+.modal-backdrop {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.75);
+display: none;
+align-items: center;
+justify-content: center;
+z-index: 100;
+padding: 20px;
+backdrop-filter: blur(4px);
+}
+.modal-backdrop.active { display: flex; }
+.modal {
+background: var(–bg-card);
+border: 3px solid var(–border);
+border-radius: 14px;
+padding: 16px;
+max-width: 360px;
+width: 100%;
+box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+max-height: 80vh;
+overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+}
+.modal h2 {
+font-family: ‘Press Start 2P’, cursive;
+font-size: 13px;
+color: var(–gold);
+margin-bottom: 12px;
+text-align: center;
+}
+.modal-text { font-size: 12px; line-height: 1.6; color: var(–text-dim); margin-bottom: 12px; }
+.prob-table { width: 100%; font-size: 11px; border-collapse: collapse; margin-bottom: 12px; }
+.prob-table th, .prob-table td { padding: 4px 2px; text-align: center; border-bottom: 1px solid var(–border); }
+.prob-table th { color: var(–gold); font-family: ‘Press Start 2P’, cursive; font-size: 8px; }
+.prob-table td.current { background: rgba(255,217,61,0.15); color: var(–gold); font-weight: bold; }
+
+button.modal-close {
+width: 100%;
+background: var(–red);
+color: #fff;
+border: 3px solid #8b1f2a;
+padding: 12px;
+border-radius: 8px;
+font-family: ‘Jua’, sans-serif;
+font-size: 15px;
+cursor: pointer;
+box-shadow: 0 3px 0 #8b1f2a;
+min-height: 46px;
+-webkit-appearance: none;
+}
+
+.pokemon-stage.enhancing::after {
+content: “”;
+position: absolute; inset: 0;
+background: radial-gradient(circle at center, rgba(255,217,61,0.5), transparent 60%);
+animation: sparkle 0.5s ease;
+pointer-events: none;
+}
+@keyframes sparkle { 0%, 100% { opacity: 0; } 50% { opacity: 1; } }
+
+.pop-text {
+position: absolute;
+font-family: ‘Press Start 2P’, cursive;
+font-size: 13px;
+pointer-events: none;
+animation: popUp 1.2s ease forwards;
+text-shadow: 2px 2px 0 rgba(0,0,0,0.7);
+z-index: 10;
+left: 50%;
+top: 30%;
+}
+@keyframes popUp {
+0% { opacity: 0; transform: translate(-50%, 0) scale(0.5); }
+30% { opacity: 1; transform: translate(-50%, -35px) scale(1.2); }
+100% { opacity: 0; transform: translate(-50%, -90px) scale(1); }
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(–border); border-radius: 2px; }
+
+/* === 키 높이 대응 (작은 폰) === */
+@media (max-height: 700px) {
+.header { padding: 4px 0; }
+.header h1 { font-size: 11px; }
+.pokemon-stage { padding: 8px 10px; }
+.pokemon-image-wrapper { height: min(30vw, 130px); }
+.pokemon-image { max-width: 130px; max-height: 130px; }
+.pokemon-name { font-size: 17px; }
+.result-log { height: 50px; font-size: 11px; padding: 6px 10px; }
+button.btn { padding: 11px 10px; font-size: 14px; min-height: 44px; }
+.btn-mini { padding: 8px 4px; min-height: 38px; font-size: 11px; }
+}
+
+@media (max-height: 600px) {
+.result-log { display: none; }
+.pokemon-image-wrapper { height: 100px; }
+}
+</style>
+
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <h1>⚡ POKE FORGE ⚡</h1>
+  </div>
+  <div class="statbar">
+    <div class="stat">
+      <span class="stat-icon">💰</span>
+      <div class="stat-info">
+        <div class="stat-label">GOLD</div>
+        <div class="stat-value" id="gold">100,000</div>
+      </div>
+    </div>
+    <div class="stat">
+      <span class="stat-icon">🎯</span>
+      <div class="stat-info">
+        <div class="stat-label">ATTEMPTS</div>
+        <div class="stat-value" id="attempts">0</div>
+      </div>
+    </div>
+  </div>
+  <div class="pokemon-stage" id="stage">
+    <div class="level-badge" id="level-badge">+0 강</div>
+    <div class="pokemon-image-wrapper">
+      <img class="pokemon-image" id="pokemon-img" alt="pokemon">
+    </div>
+    <div class="pokemon-name" id="pokemon-name">로딩중...</div>
+    <div class="pokemon-number" id="pokemon-number">NO.000</div>
+  </div>
+  <div class="probability-preview">
+    <div class="prob">
+      <div class="prob-label success">✓ 성공</div>
+      <div class="prob-value" id="p-success">100%</div>
+    </div>
+    <div class="prob">
+      <div class="prob-label keep">○ 유지</div>
+      <div class="prob-value" id="p-keep">0%</div>
+    </div>
+    <div class="prob">
+      <div class="prob-label destroy">✕ 방생</div>
+      <div class="prob-value" id="p-destroy">0%</div>
+    </div>
+  </div>
+  <div class="result-log" id="log">
+    <div class="system">🏕️ 오박사: 어서오게, 트레이너!</div>
+  </div>
+  <div class="actions">
+    <button class="btn btn-enhance" id="btn-enhance">⚡ 강화 (10G)</button>
+    <button class="btn btn-sell" id="btn-sell">💰 판매</button>
+  </div>
+  <div class="bottom-actions">
+    <button class="btn btn-mini" id="btn-new">🎲 새포켓몬</button>
+    <button class="btn btn-mini" id="btn-reset">🔄 초기화</button>
+    <button class="btn btn-mini" id="btn-prob">📊 확률표</button>
+  </div>
+</div>
+<div class="flash-overlay" id="flash"></div>
+<div class="modal-backdrop" id="modal-prob">
+  <div class="modal">
+    <h2>강화 확률표</h2>
+    <div class="modal-text">현재 레벨: <span style="color:#ffd93d" id="modal-current-level">0</span>강</div>
+    <table class="prob-table">
+      <thead><tr><th>강</th><th>성공</th><th>유지</th><th>방생</th></tr></thead>
+      <tbody id="prob-table-body"></tbody>
+    </table>
+    <button class="modal-close" onclick="closeModal('modal-prob')">닫기</button>
+  </div>
+</div>
+<script>
+const PROB_TABLE = {
+  1:[100.0,0.0,0.0], 2:[90.6,9.4,0.0], 3:[79.8,20.2,0.0], 4:[70.1,27.9,2.1],
+  5:[59.9,35.0,5.1], 6:[50.1,39.7,10.2], 7:[45.4,44.1,10.5], 8:[40.2,49.6,10.3],
+  9:[33.6,56.6,9.8], 10:[29.3,61.4,9.5], 11:[25.5,64.5,10.1], 12:[23.6,65.9,10.6],
+  13:[19.3,70.2,10.5], 14:[18.1,72.3,9.7], 15:[14.8,75.5,9.9], 16:[13.1,78.0,9.8],
+  17:[10.9,76.8,12.6], 18:[9.9,79.9,10.7], 19:[4.7,86.2,10.6], 20:[3.3,90.3,9.9],
+};
+function getEnhanceCost(level){ return Math.floor(10 * Math.pow(1.45, level)); }
+function getSellPrice(level){ if(level===0) return 0; return Math.floor(8 * Math.pow(1.55, level)); }
+
+const PREFIX_BY_LEVEL = {
+0:’’, 1:’약해빠진 ’, 2:’어설픈 ’, 3:’평범한 ’, 4:’쓸만한 ’, 5:’단련된 ’,
+6:’날렵한 ’, 7:’강인한 ’, 8:’용맹한 ’, 9:’정예 ’, 10:’백전노장 ’,
+11:’엘리트 ’, 12:’영웅의 ’, 13:’전설의 ’, 14:’신화의 ’, 15:’초월한 ’,
+16:’태초의 ’, 17:’천상의 ’, 18:’신급 ’, 19:’궁극의 ’, 20:’🌟만렙🌟 ’,
+};
+
+const POKEMON_DATA = {
+1:[‘이상해씨’,7,2,14,3], 2:[‘이상해풀’,null,null,7,3], 3:[‘이상해꽃’,null,null,null,null],
+4:[‘파이리’,7,5,14,6], 5:[‘리자드’,null,null,null,null], 6:[‘리자몽’,null,null,null,null],
+7:[‘꼬부기’,7,8,14,9], 8:[‘어니부기’,null,null,null,null], 9:[‘거북왕’,null,null,null,null],
+10:[‘캐터피’,7,11,14,12], 11:[‘단데기’,null,null,null,null], 12:[‘버터플’,null,null,null,null],
+13:[‘뿔충이’,7,14,14,15], 14:[‘딱충이’,null,null,null,null], 15:[‘독침붕’,null,null,null,null],
+16:[‘구구’,7,17,14,18], 17:[‘피죤’,null,null,null,null], 18:[‘피죤투’,null,null,null,null],
+19:[‘꼬렛’,10,20,null,null], 20:[‘레트라’,null,null,null,null],
+21:[‘깨비참’,10,22,null,null], 22:[‘깨비드릴조’,null,null,null,null],
+23:[‘아보’,10,24,null,null], 24:[‘아보크’,null,null,null,null],
+25:[‘피카츄’,10,26,null,null], 26:[‘라이츄’,null,null,null,null],
+27:[‘모래두지’,10,28,null,null], 28:[‘고지’,null,null,null,null],
+29:[‘니드런F’,7,30,14,31], 30:[‘니드리나’,null,null,null,null], 31:[‘니드퀸’,null,null,null,null],
+32:[‘니드런M’,7,33,14,34], 33:[‘니드리노’,null,null,null,null], 34:[‘니드킹’,null,null,null,null],
+35:[‘삐삐’,10,36,null,null], 36:[‘픽시’,null,null,null,null],
+37:[‘식스테일’,10,38,null,null], 38:[‘나인테일’,null,null,null,null],
+39:[‘푸린’,10,40,null,null], 40:[‘푸크린’,null,null,null,null],
+41:[‘주뱃’,10,42,null,null], 42:[‘골뱃’,null,null,null,null],
+43:[‘뚜벅쵸’,7,44,14,45], 44:[‘냄새꼬’,null,null,null,null], 45:[‘라플레시아’,null,null,null,null],
+46:[‘파라스’,10,47,null,null], 47:[‘파라섹트’,null,null,null,null],
+48:[‘콘팡’,10,49,null,null], 49:[‘도나리’,null,null,null,null],
+50:[‘디그다’,10,51,null,null], 51:[‘닥트리오’,null,null,null,null],
+52:[‘나옹’,10,53,null,null], 53:[‘페르시온’,null,null,null,null],
+54:[‘고라파덕’,10,55,null,null], 55:[‘골덕’,null,null,null,null],
+56:[‘망키’,10,57,null,null], 57:[‘성원숭’,null,null,null,null],
+58:[‘가디’,10,59,null,null], 59:[‘윈디’,null,null,null,null],
+60:[‘발챙이’,7,61,14,62], 61:[‘슈륙챙이’,null,null,null,null], 62:[‘강챙이’,null,null,null,null],
+63:[‘캐이시’,7,64,14,65], 64:[‘윤겔라’,null,null,null,null], 65:[‘후딘’,null,null,null,null],
+66:[‘알통몬’,7,67,14,68], 67:[‘근육몬’,null,null,null,null], 68:[‘괴력몬’,null,null,null,null],
+69:[‘모다피’,7,70,14,71], 70:[‘우츠동’,null,null,null,null], 71:[‘우츠보트’,null,null,null,null],
+72:[‘왕눈해’,10,73,null,null], 73:[‘독파리’,null,null,null,null],
+74:[‘꼬마돌’,7,75,14,76], 75:[‘데구리’,null,null,null,null], 76:[‘딱구리’,null,null,null,null],
+77:[‘포니타’,10,78,null,null], 78:[‘날쌩마’,null,null,null,null],
+79:[‘야돈’,10,80,null,null], 80:[‘야도란’,null,null,null,null],
+81:[‘코일’,10,82,null,null], 82:[‘레어코일’,null,null,null,null],
+83:[‘파오리’,null,null,null,null],
+84:[‘두두’,10,85,null,null], 85:[‘두트리오’,null,null,null,null],
+86:[‘쥬쥬’,10,87,null,null], 87:[‘쥬레곤’,null,null,null,null],
+88:[‘질퍽이’,10,89,null,null], 89:[‘질뻐기’,null,null,null,null],
+90:[‘셀러’,10,91,null,null], 91:[‘파르셀’,null,null,null,null],
+92:[‘고오스’,7,93,14,94], 93:[‘고우스트’,null,null,null,null], 94:[‘팬텀’,null,null,null,null],
+95:[‘롱스톤’,null,null,null,null],
+96:[‘슬리프’,10,97,null,null], 97:[‘슬리퍼’,null,null,null,null],
+98:[‘크랩’,10,99,null,null], 99:[‘킹크랩’,null,null,null,null],
+100:[‘찌리리공’,10,101,null,null], 101:[‘붐볼’,null,null,null,null],
+102:[‘아라리’,10,103,null,null], 103:[‘나시’,null,null,null,null],
+104:[‘탕구리’,10,105,null,null], 105:[‘텅구리’,null,null,null,null],
+106:[‘시라소몬’,null,null,null,null], 107:[‘홍수몬’,null,null,null,null], 108:[‘내루미’,null,null,null,null],
+109:[‘또가스’,10,110,null,null], 110:[‘또도가스’,null,null,null,null],
+111:[‘뿔카노’,10,112,null,null], 112:[‘코뿌리’,null,null,null,null],
+113:[‘럭키’,null,null,null,null], 114:[‘덩쿠리’,null,null,null,null], 115:[‘캥카’,null,null,null,null],
+116:[‘쏘드라’,10,117,null,null], 117:[‘시드라’,null,null,null,null],
+118:[‘콘치’,10,119,null,null], 119:[‘왕콘치’,null,null,null,null],
+120:[‘별가사리’,10,121,null,null], 121:[‘아쿠스타’,null,null,null,null],
+122:[‘마임맨’,null,null,null,null], 123:[‘스라크’,null,null,null,null], 124:[‘루주라’,null,null,null,null],
+125:[‘에레브’,null,null,null,null], 126:[‘마그마’,null,null,null,null], 127:[‘쁘사이저’,null,null,null,null],
+128:[‘켄타로스’,null,null,null,null],
+129:[‘잉어킹’,15,130,null,null], 130:[‘갸라도스’,null,null,null,null],
+131:[‘라프라스’,null,null,null,null], 132:[‘메타몽’,null,null,null,null],
+133:[‘이브이’,10,134,null,null], 134:[‘샤미드’,null,null,null,null],
+135:[‘쥬피썬더’,null,null,null,null], 136:[‘부스터’,null,null,null,null], 137:[‘폴리곤’,null,null,null,null],
+138:[‘암나이트’,10,139,null,null], 139:[‘암스타’,null,null,null,null],
+140:[‘투구’,10,141,null,null], 141:[‘투구푸스’,null,null,null,null],
+142:[‘프테라’,null,null,null,null], 143:[‘잠만보’,null,null,null,null],
+144:[‘프리져’,null,null,null,null], 145:[‘썬더’,null,null,null,null], 146:[‘파이어’,null,null,null,null],
+147:[‘미뇽’,7,148,14,149], 148:[‘신뇽’,null,null,null,null], 149:[‘망나뇽’,null,null,null,null],
+150:[‘뮤츠’,null,null,null,null], 151:[‘뮤’,null,null,null,null],
+};
+
+// 진화형 ID 자동 수집 → 기본형만 0강 출현
+const EVOLUTION_IDS = new Set();
+Object.values(POKEMON_DATA).forEach(([_, e1Lv, e1Id, e2Lv, e2Id]) => {
+if (e1Id) EVOLUTION_IDS.add(e1Id);
+if (e2Id) EVOLUTION_IDS.add(e2Id);
+});
+const STARTER_IDS = Object.keys(POKEMON_DATA)
+.map(Number).filter(id => !EVOLUTION_IDS.has(id));
+
+// === 이미지 CDN 순차 fallback ===
+const SHOWDOWN_NAMES = {
+1:‘bulbasaur’,2:‘ivysaur’,3:‘venusaur’,4:‘charmander’,5:‘charmeleon’,6:‘charizard’,
+7:‘squirtle’,8:‘wartortle’,9:‘blastoise’,10:‘caterpie’,11:‘metapod’,12:‘butterfree’,
+13:‘weedle’,14:‘kakuna’,15:‘beedrill’,16:‘pidgey’,17:‘pidgeotto’,18:‘pidgeot’,
+19:‘rattata’,20:‘raticate’,21:‘spearow’,22:‘fearow’,23:‘ekans’,24:‘arbok’,
+25:‘pikachu’,26:‘raichu’,27:‘sandshrew’,28:‘sandslash’,29:‘nidoranf’,30:‘nidorina’,
+31:‘nidoqueen’,32:‘nidoranm’,33:‘nidorino’,34:‘nidoking’,35:‘clefairy’,36:‘clefable’,
+37:‘vulpix’,38:‘ninetales’,39:‘jigglypuff’,40:‘wigglytuff’,41:‘zubat’,42:‘golbat’,
+43:‘oddish’,44:‘gloom’,45:‘vileplume’,46:‘paras’,47:‘parasect’,48:‘venonat’,
+49:‘venomoth’,50:‘diglett’,51:‘dugtrio’,52:‘meowth’,53:‘persian’,54:‘psyduck’,
+55:‘golduck’,56:‘mankey’,57:‘primeape’,58:‘growlithe’,59:‘arcanine’,60:‘poliwag’,
+61:‘poliwhirl’,62:‘poliwrath’,63:‘abra’,64:‘kadabra’,65:‘alakazam’,66:‘machop’,
+67:‘machoke’,68:‘machamp’,69:‘bellsprout’,70:‘weepinbell’,71:‘victreebel’,72:‘tentacool’,
+73:‘tentacruel’,74:‘geodude’,75:‘graveler’,76:‘golem’,77:‘ponyta’,78:‘rapidash’,
+79:‘slowpoke’,80:‘slowbro’,81:‘magnemite’,82:‘magneton’,83:‘farfetchd’,84:‘doduo’,
+85:‘dodrio’,86:‘seel’,87:‘dewgong’,88:‘grimer’,89:‘muk’,90:‘shellder’,
+91:‘cloyster’,92:‘gastly’,93:‘haunter’,94:‘gengar’,95:‘onix’,96:‘drowzee’,
+97:‘hypno’,98:‘krabby’,99:‘kingler’,100:‘voltorb’,101:‘electrode’,102:‘exeggcute’,
+103:‘exeggutor’,104:‘cubone’,105:‘marowak’,106:‘hitmonlee’,107:‘hitmonchan’,108:‘lickitung’,
+109:‘koffing’,110:‘weezing’,111:‘rhyhorn’,112:‘rhydon’,113:‘chansey’,114:‘tangela’,
+115:‘kangaskhan’,116:‘horsea’,117:‘seadra’,118:‘goldeen’,119:‘seaking’,120:‘staryu’,
+121:‘starmie’,122:‘mrmime’,123:‘scyther’,124:‘jynx’,125:‘electabuzz’,126:‘magmar’,
+127:‘pinsir’,128:‘tauros’,129:‘magikarp’,130:‘gyarados’,131:‘lapras’,132:‘ditto’,
+133:‘eevee’,134:‘vaporeon’,135:‘jolteon’,136:‘flareon’,137:‘porygon’,138:‘omanyte’,
+139:‘omastar’,140:‘kabuto’,141:‘kabutops’,142:‘aerodactyl’,143:‘snorlax’,144:‘articuno’,
+145:‘zapdos’,146:‘moltres’,147:‘dratini’,148:‘dragonair’,149:‘dragonite’,150:‘mewtwo’,
+151:‘mew’
+};
+const IMAGE_SOURCES = [
+id => `https://play.pokemonshowdown.com/sprites/gen5/${SHOWDOWN_NAMES[id]}.png`,
+id => `https://cdn.jsdelivr.net/gh/PokeAPI/sprites@master/sprites/pokemon/${id}.png`,
+id => `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+id => `https://raw.githack.com/PokeAPI/sprites/master/sprites/pokemon/${id}.png`,
+];
+
+let state = {
+gold: 100000,
+attempts: 0,
+current: { baseId: 1, level: 0 },
+};
+
+function getCurrentPokemonId(baseId, level){
+const data = POKEMON_DATA[baseId];
+if(!data) return baseId;
+const [_, evo1Lv, evo1Id, evo2Lv, evo2Id] = data;
+if(evo2Lv && level >= evo2Lv && evo2Id) return evo2Id;
+if(evo1Lv && level >= evo1Lv && evo1Id) return evo1Id;
+return baseId;
+}
+function getDisplayName(baseId, level){
+const currentId = getCurrentPokemonId(baseId, level);
+const prefix = PREFIX_BY_LEVEL[level] || ‘’;
+const name = POKEMON_DATA[currentId][0];
+return prefix + name;
+}
+const $ = id => document.getElementById(id);
+
+function render(){
+const { gold, current, attempts } = state;
+const { baseId, level } = current;
+const currentId = getCurrentPokemonId(baseId, level);
+
+$(‘gold’).textContent = gold.toLocaleString();
+$(‘attempts’).textContent = attempts;
+$(‘level-badge’).textContent = `+${level} 강`;
+$(‘level-badge’).classList.toggle(‘max’, level === 20);
+
+const imgEl = $(‘pokemon-img’);
+if (imgEl.dataset.pokemonId !== String(currentId)) {
+imgEl.dataset.pokemonId = currentId;
+imgEl.dataset.attempt = ‘0’;
+imgEl.src = IMAGE_SOURCES[0](currentId);
+}
+imgEl.alt = getDisplayName(baseId, level);
+$(‘pokemon-name’).textContent = getDisplayName(baseId, level);
+$(‘pokemon-number’).textContent = `NO.${String(currentId).padStart(3, '0')}`;
+
+if (level >= 20) {
+$(‘btn-enhance’).disabled = true;
+$(‘btn-enhance’).innerHTML = ‘🏆 만렙!’;
+} else {
+const cost = getEnhanceCost(level);
+$(‘btn-enhance’).disabled = (gold < cost);
+$(‘btn-enhance’).innerHTML = `⚡ 강화 (${cost.toLocaleString()}G)`;
+}
+
+// 0강은 판매 불가
+if (level === 0) {
+$(‘btn-sell’).disabled = true;
+$(‘btn-sell’).textContent = ‘💰 판매불가’;
+} else {
+$(‘btn-sell’).disabled = false;
+$(‘btn-sell’).textContent = `💰 판매 (${getSellPrice(level).toLocaleString()}G)`;
+}
+
+if (level < 20) {
+const [s, k, d] = PROB_TABLE[level + 1];
+$(‘p-success’).textContent = `${s}%`;
+$(‘p-keep’).textContent = `${k}%`;
+$(‘p-destroy’).textContent = `${d}%`;
+} else {
+$(‘p-success’).textContent = ‘-’;
+$(‘p-keep’).textContent = ‘-’;
+$(‘p-destroy’).textContent = ‘-’;
+}
+}
+
+function addLog(text, className=’’){
+const log = $(‘log’);
+const div = document.createElement(‘div’);
+div.className = className;
+div.textContent = text;
+log.insertBefore(div, log.firstChild);
+while (log.children.length > 20) log.removeChild(log.lastChild);
+}
+
+function showPopText(text, color){
+const wrapper = document.querySelector(’.pokemon-image-wrapper’);
+const pop = document.createElement(‘div’);
+pop.className = ‘pop-text’;
+pop.textContent = text;
+pop.style.color = color;
+wrapper.appendChild(pop);
+setTimeout(() => pop.remove(), 1200);
+}
+function flashScreen(){
+const f = $(‘flash’);
+f.classList.add(‘active’);
+setTimeout(() => f.classList.remove(‘active’), 300);
+}
+
+function vibrate(ms) {
+if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+function attemptEnhance(){
+const { current, gold } = state;
+const { baseId, level } = current;
+if (level >= 20) { addLog(‘🏆 이미 만렙!’, ‘system’); return; }
+const cost = getEnhanceCost(level);
+if (gold < cost) { addLog(‘💸 골드 부족!’, ‘destroy’); return; }
+
+state.gold -= cost;
+state.attempts += 1;
+const [pSuccess, pKeep, pDestroy] = PROB_TABLE[level + 1];
+const roll = Math.random() * 100;
+const img = $(‘pokemon-img’);
+const stage = $(‘stage’);
+stage.classList.add(‘enhancing’);
+setTimeout(() => stage.classList.remove(‘enhancing’), 500);
+
+if (roll < pSuccess) {
+const beforeId = getCurrentPokemonId(baseId, level);
+state.current.level = level + 1;
+const afterId = getCurrentPokemonId(baseId, level + 1);
+const evolved = (afterId !== beforeId);
+if (evolved) {
+flashScreen();
+vibrate([30,60,100]);
+img.classList.add(‘evolving’);
+setTimeout(() => img.classList.remove(‘evolving’), 1000);
+showPopText(‘진화!!’, ‘#26e0e0’);
+addLog(`✨ 진화! ${POKEMON_DATA[beforeId][0]} → ${POKEMON_DATA[afterId][0]}!`, ‘evolve’);
+} else {
+vibrate(20);
+img.classList.add(‘bouncing’);
+setTimeout(() => img.classList.remove(‘bouncing’), 600);
+showPopText(‘성공!’, ‘#2ed573’);
+}
+addLog(`✓ +${level} → +${level + 1}`, ‘success’);
+} else if (roll < pSuccess + pKeep) {
+vibrate(15);
+img.classList.add(‘shaking’);
+setTimeout(() => img.classList.remove(‘shaking’), 500);
+showPopText(‘유지…’, ‘#ffd93d’);
+addLog(`○ 유지 (+${level})`, ‘keep’);
+} else {
+vibrate([100,50,100]);
+img.classList.add(‘shaking’);
+setTimeout(() => img.classList.remove(‘shaking’), 500);
+showPopText(‘방생…’, ‘#ff4757’);
+const pokeName = getDisplayName(baseId, level);
+addLog(`💔 ${pokeName}이(가) 방생...`, ‘destroy’);
+setTimeout(() => giveNewPokemon(true), 400);
+}
+render();
+}
+
+function sellCurrent(){
+const { level, baseId } = state.current;
+if (level === 0) { addLog(‘⚠️ 0강은 판매 불가!’, ‘destroy’); return; }
+const price = getSellPrice(level);
+const name = getDisplayName(baseId, level);
+state.gold += price;
+addLog(`💰 ${name} → +${price.toLocaleString()}G`, ‘system’);
+giveNewPokemon(false);
+render();
+}
+
+function giveNewPokemon(isRelease){
+const randomId = STARTER_IDS[Math.floor(Math.random() * STARTER_IDS.length)];
+state.current = { baseId: randomId, level: 0 };
+const verb = isRelease ? ‘획득!’ : ‘만남.’;
+addLog(`🌱 ${POKEMON_DATA[randomId][0]}을(를) ${verb}`, ‘system’);
+render();
+}
+
+function resetGame(){
+if (confirm(‘모든 진행 초기화?’)) {
+state = { gold: 100000, attempts: 0, current: { baseId: STARTER_IDS[Math.floor(Math.random()*STARTER_IDS.length)], level: 0 } };
+$(‘log’).innerHTML = ‘<div class="system">🏕️ 새로운 모험 시작!</div>’;
+render();
+}
+}
+
+function openProbModal(){
+const body = $(‘prob-table-body’);
+const currentLevel = state.current.level;
+$(‘modal-current-level’).textContent = currentLevel;
+body.innerHTML = ‘’;
+for (let i = 1; i <= 20; i++) {
+const [s, k, d] = PROB_TABLE[i];
+const cur = (i === currentLevel + 1);
+const tr = document.createElement(‘tr’);
+tr.innerHTML = `<td class="${cur?'current':''}">+${i}</td> <td class="${cur?'current':''}" style="color:#2ed573">${s}%</td> <td class="${cur?'current':''}" style="color:#ffd93d">${k}%</td> <td class="${cur?'current':''}" style="color:#ff4757">${d}%</td>`;
+body.appendChild(tr);
+}
+$(‘modal-prob’).classList.add(‘active’);
+}
+function closeModal(id){ $(id).classList.remove(‘active’); }
+window.closeModal = closeModal;
+
+// === 초기화 & 이벤트 바인딩 ===
+function init(){
+// 랜덤 시작 포켓몬 (기본형 중에서)
+const startId = STARTER_IDS[Math.floor(Math.random() * STARTER_IDS.length)];
+state.current = { baseId: startId, level: 0 };
+
+render();
+
+// 터치에 즉각 반응하도록 touchstart 우선 바인딩
+const bindBtn = (id, fn) => {
+const el = $(id);
+let touched = false;
+el.addEventListener(‘touchstart’, (e) => {
+touched = true;
+e.preventDefault();
+fn();
+}, { passive: false });
+el.addEventListener(‘click’, (e) => {
+if (!touched) fn();
+touched = false;
+});
+};
+
+bindBtn(‘btn-enhance’, attemptEnhance);
+bindBtn(‘btn-sell’, sellCurrent);
+bindBtn(‘btn-new’, () => {
+if (confirm(‘새 포켓몬을 받으시겠습니까?’)) giveNewPokemon(false);
+});
+bindBtn(‘btn-reset’, resetGame);
+bindBtn(‘btn-prob’, openProbModal);
+
+// 이미지 fallback
+const imgEl = $(‘pokemon-img’);
+imgEl.addEventListener(‘error’, function(){
+const pid = parseInt(this.dataset.pokemonId, 10);
+const nextIdx = parseInt(this.dataset.attempt || ‘0’, 10) + 1;
+if (pid && nextIdx < IMAGE_SOURCES.length) {
+this.dataset.attempt = nextIdx;
+this.src = IMAGE_SOURCES[nextIdx](pid);
+} else {
+this.src = “data:image/svg+xml;charset=utf-8,” + encodeURIComponent(` <svg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'> <rect width='160' height='160' fill='#1f2754' rx='16'/> <circle cx='80' cy='65' r='28' fill='none' stroke='#ff4757' stroke-width='3'/> <rect x='52' y='65' width='56' height='3' fill='#ff4757'/> <circle cx='80' cy='65' r='7' fill='#ff4757'/> <text x='50%' y='120' text-anchor='middle' fill='#a4b0be' font-size='12'>이미지 오프라인</text> </svg>`);
+}
+});
+
+// 모달 바깥 클릭 시 닫기
+document.querySelectorAll(’.modal-backdrop’).forEach(m => {
+m.addEventListener(‘click’, (e) => { if (e.target === m) m.classList.remove(‘active’); });
+});
+
+// 더블탭 줌 방지
+let lastTap = 0;
+document.addEventListener(‘touchend’, (e) => {
+const now = Date.now();
+if (now - lastTap < 300) e.preventDefault();
+lastTap = now;
+}, { passive: false });
+
+// iOS 바운스 스크롤 방지 (앱 영역 외)
+document.body.addEventListener(‘touchmove’, (e) => {
+if (e.target.closest(’.result-log, .modal’)) return;
+e.preventDefault();
+}, { passive: false });
+}
+init();
+</script>
+
+</body>
+</html>
